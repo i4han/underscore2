@@ -1,7 +1,8 @@
+// import json from './package.json'
 
 Package.describe({
     summary: 'Underscore2: Underscore-like library that provide a set of useful functions for Meteor.',
-    version: '0.4.22',
+    version: '0.4.102',
     git: 'https://github.com/i4han/underscore2.git',
     documentation: 'README.md'
 });
