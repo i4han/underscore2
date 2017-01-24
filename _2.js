@@ -7,7 +7,6 @@ if ('undefined' === typeof __ ) {
         window.__ = {}
 }
 
-'undefined' === typeof Meteor && (exports.__ = __)
 __ = {}
 
 __.keys        = o => Object.keys(o)
@@ -608,3 +607,5 @@ __.removeMultipleRules = function(obj) {
     }
   });
 };
+
+'undefined' === typeof Meteor && (exports.__ = __)
