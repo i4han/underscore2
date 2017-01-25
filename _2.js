@@ -10,34 +10,42 @@ if ('undefined' === typeof __ ) {
 __ = {}
 
 __.keys        = o => Object.keys(o)
-__.isUndefined = v => 'undefined' === typeof v
-__.isFunction  = v => 'function'  === typeof v
-__.isString    = v => 'string'    === typeof v
-__.isNumber    = v => 'number'    === typeof v
-__.isBoolean   = v => 'boolean'   === typeof v
-__.isScalar    = v => __.isNumber(v) || __.isString(v) || __.isBoolean(v)
-__.isNull      = v => o === null // Do you need this?
-__.isArray     = o => '[object Array]'     === Object.prototype.toString.call(o)
-__.isObject    = o => '[object Object]'    === Object.prototype.toString.call(o)
-__.isArguments = o => '[object Arguments]' === Object.prototype.toString.call(o)
-__.isClient        = () => 'object'   === typeof window
-__.hasJQueryLoaded = () => 'function' === typeof $ && $() instanceof jQuery
-__.hasDOMLoaded    = () => document.readyState === 'complete' || document.readyState === 'interactive'
+__.t     = (v, t) => 'function' === typeof t ? t(v) : 'undefined' === typeof t ? true  : t
+__.f     = (v, f) => 'function' === typeof f ? f(v) : 'undefined' === typeof f ? false : f
+__.true  = (v, t) => v && __.t(v, t)
+__.false = (v, f) => v || __.f(v, f)
+__.isIt  = (v, it, t, f) => it ? __.t(v, t) : __.f(v, f)
+__.isFunction   = (v, t, f) => __.isIt(v, 'function'  === typeof v, t, f)
+__.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
+__.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
+__.isNumber     = (v, t, f) => __.isIt(v, 'number'    === typeof v, t, f)
+__.isBoolean    = (v, t, f) => __.isIt(v, 'boolean'   === typeof v, t, f)
+__.isScalar     = (v, t, f) => __.isIt(v, __.isNumber(v) || __.isString(v) || __.isBoolean(v), t, f)
+__.__isNull     = v => o === null // Do you need this? No
+__.isArray      = (v, t, f) => __.isIt(v, '[object Array]'     === Object.prototype.toString.call(v), t, f)
+__.isObject     = (v, t, f) => __.isIt(v, '[object Object]'    === Object.prototype.toString.call(v), t, f)
+__.isArguments  = (v, t, f) => __.isIt(v, '[object Arguments]' === Object.prototype.toString.call(v), t, f)
+__.isClient        = (t, f) => __.isIt(void 0, 'object'   === typeof window, t, f)
+__.hasJQueryLoaded = (t, f) => __.isIt(void 0, 'function' === typeof $ && $() instanceof jQuery, t, f)
+__.hasDOMLoaded    = (t, f) => __.isIt(void 0, document.readyState === 'complete' || document.readyState === 'interactive', t, f)
 
-__.isLower   = v => __.isString(v) && __.check('lower', v)
-__.isUpper   = v => __.isString(v) && __.check('upper', v)
-__.isJQuery  = v => __.isClient() && 'undefined' !== typeof $ && v instanceof $
-__.isElement = o => 'undefined' !== typeof HTMLElement && o instanceof HTMLElement
-__.isHTMLTag = o => 'undefined' !== typeof HTML.Tag && o instanceof HTML.Tag
+__.isLower      = (v, t, f) => __.isIt(v, __.isString(v) && v.toLowerCase() === v, t, f)
+__.isUpper      = (v, t, f) => __.isIt(v, __.isString(v) && v.toUpperCase() === v, t, f)
+__.isJQuery     = (v, t, f) => __.isIt(v, __.isClient() && 'undefined' !== typeof $ && v instanceof $,    t, f)
+__.isElement    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTMLElement && v instanceof HTMLElement, t, f)
+__.isHTMLTag    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTML.Tag && v instanceof HTML.Tag,       t, f)
+//__.__isDeclaration = __.isStyleDeclaration
+__.isStyleDeclaration= (v, t, f) => __.isIt(v, 'undefined' !== typeof CSSStyleDeclaration && v instanceof CSSStyleDeclaration, t, f)
+__.isMeteor        = (t, f) => __.isIt(void 0, 'undefined' !== typeof Meteor,    t, f)
+__.isMeteorServer  = (t, f) => __.isIt(void 0, __.isMeteor() && Meteor.isServer, t, f)
+__.isMeteorClient  = (t, f) => __.isIt(void 0, __.isMeteor() && Meteor.isClient, t, f)
 
-__.isStyleDeclaration = o =>
-  'undefined' !== typeof CSSStyleDeclaration && o instanceof CSSStyleDeclaration
-
-__.__isDeclaration = __.isStyleDeclaration;
-
-__.isMeteor       = () => 'undefined' !== typeof Meteor
-__.isMeteorServer = () => __.isMeteor() && Meteor.isServer
-__.isMeteorClient = () => __.isMeteor() && Meteor.isClient
+__.meteorStartup = f => __.isUndefined(__._meteor_startup, (() => __._meteor_startup = [f]), () => __._meteor_startup.push(f))
+__.runMeteorStartup = () => __._meteor_startup && __._meteor_startup.forEach(f => f())
+__._db = __._db || {}
+__._db_stack = __._db_stack || []
+__.db = (collection, data, fn) =>
+  __._db[collection] ? fn(__._db[collection], data) : __._db_stack.push({collection, data, fn})
 
 __.isBlazeView    = o => 'undefined' !== typeof Blaze.View && o instanceof Blaze.View
 __.isBlazeElement = o => __.isHTMLTag(o) || __.isBlazeView(o) || __.isString(o)

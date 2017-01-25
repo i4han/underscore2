@@ -1,6 +1,6 @@
 {
     "name": "underscore2",
-    "version": "0.5.1",
+    "version": "0.5.15",
     "os" : [ "!win32" ],
     "description": "Underscore2: Underscore-like library that provide a set of useful functions for Meteor.",
     "main": "_2.js",
