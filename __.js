@@ -74,13 +74,11 @@ __.reduce     = (a, o, f) => a.reduce(f, o)
 __.reduceKeys = (obj, o, f) => __.keys(obj).reduce(f, o)
 __.eachKeys   = (obj, f)    => __.keys(obj).forEach(f)
 
-
 __.module  = v =>
     __.isBlazeTemplateInstance(v) ? Sat.module[__.nameBlazeView(v.view)] :
     __.isBlazeView(v)             ? Sat.module[__.nameBlazeView(v)] : '?' // what to do? v _?
 
 __.getLocal = v => v.slice(6)
-
 
 const checkTable = {
    alpha:      (v) => /^[a-zA-Z]+$/.test(v),
@@ -108,17 +106,31 @@ __.capitalize = s => __.isString(s) && s[0].toUpperCase() + s.slice(1)
 __.camelize   = s => __.isString(s) && s.replace(/-([a-z])/g, (_, $1) => $1.toUpperCase()).replace(/\-/g, '$')
 __.dasherize  = s => __.isString(s) && s.replace(/\$/g, '-').replace(/([A-Z])/g, $1 => '-' + $1.toLowerCase())
 
+__.return = (func, self) => {
+  self = self || this
+  return __.isFunction(func) ? func.call(self, self) : func }
+
 __.toArray = s =>
   __.isArray(s)  ? s :
   __.isString(s) ? s.split(' ') :
   __.isEmpty(s)  ? [] : s
 
-__.return = (func, self) => {
-  self = self || this
-  return __.isFunction(func) ? func.call(self, self) : func }
+__.toString = v =>
+  __.isString(v) ? v :
+  __.isObject(v) ? JSON.stringify(v) :
+  __.isScalar(v) || __.isArray(v) ? v.toString() : void 0
 
-// next work
+__.padLeft  = (pad, s) =>  // pad: pading space ' ' _number_ like 6 or pad _string_ like '****'
+  (__.toString(s) + (__.isNumber(pad) ? Array(pad + 1).join(' ') : pad)).slice(0, (__.isNumber(pad) ? pad : pad.length))
+__.padRight = (pad, s) =>
+  ((__.isNumber(pad) ? Array(pad + 1).join(' ') : pad) + __.toString(s)).slice(  -(__.isNumber(pad) ? pad : pad.length))
 
+/*/ next work
+__.assign = (obj) ->
+   (args = [].slice.call arguments).length > 1 and args[1..].forEach (o) -> obj[k] = v for k, v of o
+   obj
+   combining two objects.
+*/
 __.assign = function(obj) {
   var args;
   (args = [].slice.call(arguments)).length > 1 && args.slice(1).forEach(function(o) {
