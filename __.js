@@ -106,7 +106,7 @@ __.capitalize = s => __.isString(s) && s[0].toUpperCase() + s.slice(1)
 __.camelize   = s => __.isString(s) && s.replace(/-([a-z])/g, (_, $1) => $1.toUpperCase()).replace(/\-/g, '$')
 __.dasherize  = s => __.isString(s) && s.replace(/\$/g, '-').replace(/([A-Z])/g, $1 => '-' + $1.toLowerCase())
 
-__.return = (func, self) => {
+__.return = function(func, self) {
   self = self || this
   return __.isFunction(func) ? func.call(self, self) : func }
 
