@@ -1,9 +1,10 @@
 'use strict'
 'undefined' === typeof __ && 'undefined' !== typeof window ? window.__ = window.__ || {} : global.__ = global.__ || {}
-__ = __ || {} // meteor server __ is undefined. why?
+__ = __ || {} // I need to put his because meteor server __ is undefined. why?
+
 __.keys        = o => Object.keys(o)
-__.t     = (v, t) => 'function' === typeof t ? t(v) : 'undefined' === typeof t ? true  : t
-__.f     = (v, f) => 'function' === typeof f ? f(v) : 'undefined' === typeof f ? false : f
+__.t     = (v, t) => 'function' === typeof t ? (v === t ? t() : t(v)) : 'undefined' === typeof t ? true  : t
+__.f     = (v, f) => 'function' === typeof f ? (v === f ? f() : f(v)) : 'undefined' === typeof f ? false : f
 __.true  = (v, t) => v && __.t(v, t)
 __.false = (v, f) => v || __.f(v, f)
 __.isIt  = (v, it, t, f) => it ? __.t(v, t) : __.f(v, f)
