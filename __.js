@@ -26,9 +26,9 @@ __.isLower      = (v, t, f) => __.isIt(v, __.isString(v) && v.toLowerCase() === 
 __.isUpper      = (v, t, f) => __.isIt(v, __.isString(v) && v.toUpperCase() === v, t, f)
 __.isJQuery     = (v, t, f) => __.isIt(v, __.isClient() && 'undefined' !== typeof $ && v instanceof $,    t, f)
 __.isElement    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTMLElement && v instanceof HTMLElement, t, f)
-__.isHTMLTag    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTML.Tag && v instanceof HTML.Tag,       t, f)
-//__.__isDeclaration = __.isStyleDeclaration
-__.isStyleDeclaration= (v, t, f) => __.isIt(v, 'undefined' !== typeof CSSStyleDeclaration && v instanceof CSSStyleDeclaration, t, f)
+__.isHTMLTag    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTML.Tag    && v instanceof HTML.Tag,    t, f)
+__.isStyleDeclaration = (v, t, f) => __.isIt(v, 'undefined' !== typeof CSSStyleDeclaration && v instanceof CSSStyleDeclaration, t, f)
+__.isArrayLike  = (v, t, f) => __.isIt(v, __.isArray(v) || __.isArguments(v) || __.isStyleDeclaration(v), t, f)
 __.isMeteor        = (t, f) => __.isIt(void 0, 'undefined' !== typeof Meteor,    t, f)
 __.isMeteorServer  = (t, f) => __.isIt(void 0, __.isMeteor() && Meteor.isServer, t, f)
 __.isMeteorClient  = (t, f) => __.isIt(void 0, __.isMeteor() && Meteor.isClient, t, f)
@@ -205,6 +205,8 @@ __.array = function(a, v) {
   }
 };
 
+
+/*
 __.object = function(obj) {
   var args;
   args = [].slice.call(arguments);
@@ -223,15 +225,13 @@ __.object = function(obj) {
         return o;
       }), {});
   }
-};
-/*
-__.object = (obj) ->  # implemented ([[k1, v1], [k2, v2], [k3, v3]]) but not ([k1, k2, k3], [v1, v2, v3])
-   args = [].slice.call arguments
-   switch
-      when __.isObject(obj) and __.isString args[1] then obj[args[1]] = args[2] ; obj
-      when __.isObject(obj) and __.isArray  args[1] then args[1..].forEach((a) -> obj[a[0]] = a[1]) ; obj
-      when __.isArray obj  then obj.reduce ((o, a) -> o[a[0]] = a[1]; o), {}
+}
 */
+__.object = (o, k, v) => {
+    __.isScalar(k) ? o[k] = v :
+    __.isArray(k)  ? __.isArray(v) ? k.map((vv, ii) => o[vv] = v[ii]) : o[k[0]] = k[1] : o
+    return o }
+
 __.theKey = o => __.keys(o)[0]
 
 __.fixup = function(v) {

@@ -1,0 +1,117 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/Cellar/node/7.4.0/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'publish' ]
+2 info using npm@4.0.5
+3 info using node@v7.4.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   escapedName: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/isaac/workspace/test/packages/isaac:underscore2',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/isaac/.npm/__/0.5.30/package.tgz not in flight; packing
+9 verbose correctMkdir /Users/isaac/.npm correctMkdir not in flight; initializing
+10 info lifecycle __@0.5.30~prepublish: __@0.5.30
+11 silly lifecycle __@0.5.30~prepublish: no script for prepublish, continuing
+12 info lifecycle __@0.5.30~prepare: __@0.5.30
+13 silly lifecycle __@0.5.30~prepare: no script for prepare, continuing
+14 verbose tar pack [ '/Users/isaac/.npm/__/0.5.30/package.tgz',
+14 verbose tar pack   '/Users/isaac/workspace/test/packages/isaac:underscore2' ]
+15 verbose tarball /Users/isaac/.npm/__/0.5.30/package.tgz
+16 verbose folder /Users/isaac/workspace/test/packages/isaac:underscore2
+17 verbose addLocalTarball adding from inside cache /Users/isaac/.npm/__/0.5.30/package.tgz
+18 verbose correctMkdir /Users/isaac/.npm correctMkdir not in flight; initializing
+19 silly cache afterAdd __@0.5.30
+20 verbose afterAdd /Users/isaac/.npm/__/0.5.30/package/package.json not in flight; writing
+21 verbose correctMkdir /Users/isaac/.npm correctMkdir not in flight; initializing
+22 verbose afterAdd /Users/isaac/.npm/__/0.5.30/package/package.json written
+23 silly publish { name: '__',
+23 silly publish   version: '0.5.30',
+23 silly publish   os: [ '!win32' ],
+23 silly publish   description: 'Underscore2: Underscore-like library that provide a set of useful functions for Meteor.',
+23 silly publish   main: '__.js',
+23 silly publish   files: [ '__.js' ],
+23 silly publish   author: { name: 'Isaac Han', email: 'isaac@hi16.ca' },
+23 silly publish   repository:
+23 silly publish    { type: 'git',
+23 silly publish      url: 'git+https://github.com/i4han/underscore2.git' },
+23 silly publish   license: 'GPL-2.0',
+23 silly publish   readme: '\n## Underscore2\nUnderscore-like library that provide a set of useful functions for Meteor.\n\n## Not Production Ready\nDo not use this package for your serious project yet.\n\n## Installation\n\n    npm install underscore2 # not yet\n\n## Dependency\nMeteor 1.0 and coffee script 1.8\nLower version of coffee script may be ok.\n\n## Underscore\nCollections\n- each:   use .forEach\n- map:    use .map\n- reduce: use .reduce\n- reduceRight use .reduceRight\n- find:   find all [object list]\n- filter: use .filter\n- where:  need?\n- findWhere: find the first [object list]\n- reject: use .filter\n- every: write x.all\n- some:  write x.any\n- contains: use .indexOf\n- invoke: [array of array]\n- pluck:  extracting a list of property values. [object list]\n- max: useful with [object list]\n- min: same\n- sortBy\n- groupBy\n- indexBy\n- countBy\n- shuffle: need?\n- sample: need?\n- toArray: arguments? x.array\n- size: number of values. Why?\n- partition: seperate an Array, true of false.\nArrays\n- first [..n]\n- initial Except the last element. [..-2]\n- last [-1..]\n- rest [1..]\n- compact  false, null, 0, "", undefined and NaN are all falsy.\n- flatten:\n- without: array without arguments.\n- union:\n- intersection\n- difference\n- uniq\n- zip\n- unzip\n- object\n- indexOf\n- lastIndexOf\n- sortedIndex\n- findIndex\n- findLastIndex\n- range\nFunctions\n- bind  .bind\n- bindAll forEach .bind\n- partial .bind\n- memoize\n- delay: setTimeout\n- defer\n- throttle\n- debounce\n- once\n- after: Function that will be run after first being called count times.\n- before\n- wrap\n- negate\n- compose\nObjects\n- keys\n- allKeys\n- values\n- mapObject\n- pairs\n- invert\n- create\n- functions\n- findKey\n- extend\n- extendOwn\n- pick\n- omit\n- defaults\n- clone\n- tap\n- has\n- matcher\n- property\n- propertyOf\n- isEqual\n- isMatch\n- isEmpty\n- isElement\n- isArray\n- isObject\n- isArguments\n- isFunction\n- isString\n- isNumber\n- isFinite\n- isBoolean\n- isDate\n- isRegExp\n- isNaN\n- isNull\n- isUndefined\nUtility\n- noConflict\n- identity\n- constant\n- noop\n- times\n- random\n- mixin\n- iteratee\n- uniqueId\n- escape\n- unescape\n- result\n- now\n- template\nChaining\n- chain\n- value\n\n## Resources\n- meteor\n- coffee-script\n- underscore\n',
+23 silly publish   readmeFilename: 'README.md',
+23 silly publish   gitHead: 'bd3a40567ac8b77e93a49a6c86ad560b9287ffa1',
+23 silly publish   bugs: { url: 'https://github.com/i4han/underscore2/issues' },
+23 silly publish   homepage: 'https://github.com/i4han/underscore2#readme',
+23 silly publish   _id: '__@0.5.30',
+23 silly publish   scripts: {},
+23 silly publish   _shasum: 'fcb6eb00d0a7e51d32720f2258465e92201f7ce0',
+23 silly publish   _from: '.' }
+24 info lifecycle __@0.5.30~prepublishOnly: __@0.5.30
+25 silly lifecycle __@0.5.30~prepublishOnly: no script for prepublishOnly, continuing
+26 verbose getPublishConfig undefined
+27 silly mapToRegistry name __
+28 silly mapToRegistry using default registry
+29 silly mapToRegistry registry https://registry.npmjs.org/
+30 silly mapToRegistry data Result {
+30 silly mapToRegistry   raw: '__',
+30 silly mapToRegistry   scope: null,
+30 silly mapToRegistry   escapedName: null,
+30 silly mapToRegistry   name: null,
+30 silly mapToRegistry   rawSpec: '__',
+30 silly mapToRegistry   spec: '__',
+30 silly mapToRegistry   type: 'local' }
+31 silly mapToRegistry uri https://registry.npmjs.org/__
+32 verbose publish registryBase https://registry.npmjs.org/
+33 silly publish uploading /Users/isaac/.npm/__/0.5.30/package.tgz
+34 verbose request uri https://registry.npmjs.org/__
+35 verbose request sending authorization for write operation
+36 info attempt registry request try #1 at 11:40:41 PM
+37 verbose request using bearer token for auth
+38 verbose request id 4dbe5582c062e8e7
+39 http request PUT https://registry.npmjs.org/__
+40 http 404 https://registry.npmjs.org/__
+41 verbose headers { 'content-type': 'application/json',
+41 verbose headers   'cache-control': 'max-age=0',
+41 verbose headers   'content-length': '58',
+41 verbose headers   'accept-ranges': 'bytes',
+41 verbose headers   date: 'Fri, 27 Jan 2017 06:40:41 GMT',
+41 verbose headers   via: '1.1 varnish',
+41 verbose headers   connection: 'keep-alive',
+41 verbose headers   'x-served-by': 'cache-sea1922-SEA',
+41 verbose headers   'x-cache': 'MISS',
+41 verbose headers   'x-cache-hits': '0',
+41 verbose headers   'x-timer': 'S1485499241.806218,VS0,VE24' }
+42 verbose request invalidating /Users/isaac/.npm/registry.npmjs.org/__ on PUT
+43 error publish Failed PUT 404
+44 verbose stack Error: Registry returned 404 for PUT on https://registry.npmjs.org/__
+44 verbose stack     at makeError (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:302:12)
+44 verbose stack     at CachingRegistryClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:280:14)
+44 verbose stack     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:210:14)
+44 verbose stack     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:186:22)
+44 verbose stack     at emitTwo (events.js:106:13)
+44 verbose stack     at Request.emit (events.js:191:7)
+44 verbose stack     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1081:10)
+44 verbose stack     at emitOne (events.js:96:13)
+44 verbose stack     at Request.emit (events.js:188:7)
+44 verbose stack     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1001:12)
+45 verbose statusCode 404
+46 verbose pkgid __
+47 verbose cwd /Users/isaac/workspace/test/packages/isaac:underscore2
+48 error Darwin 16.3.0
+49 error argv "/usr/local/Cellar/node/7.4.0/bin/node" "/usr/local/bin/npm" "publish"
+50 error node v7.4.0
+51 error npm  v4.0.5
+52 error code E404
+53 error 404 Registry returned 404 for PUT on https://registry.npmjs.org/__
+54 error 404
+55 error 404 '__' is not in the npm registry.
+56 error 404 Your package name is not valid, because
+57 error 404 1. name cannot start with an underscore
+58 error 404 Note that you can also install from a
+59 error 404 tarball, folder, http url, or git url.
+60 verbose exit [ 1, true ]
