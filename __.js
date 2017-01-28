@@ -206,27 +206,7 @@ __.array = function(a, v) {
 };
 
 
-/*
-__.object = function(obj) {
-  var args;
-  args = [].slice.call(arguments);
-  switch (false) { // if case is false
-    case !(__.isObject(obj) && __.isString(args[1])):
-      obj[args[1]] = args[2];
-      return obj;
-    case !(__.isObject(obj) && __.isArray(args[1])):
-      args.slice(1).forEach(function(a) {
-        return obj[a[0]] = a[1];
-      });
-      return obj;
-    case !__.isArray(obj):
-      return obj.reduce((function(o, a) {
-        o[a[0]] = a[1];
-        return o;
-      }), {});
-  }
-}
-*/
+__.function = o => __.isFunction(o) ? o : () => o
 __.object = (o, k, v) => {
     __.isScalar(k) ? o[k] = v :
     __.isArray(k)  ? __.isArray(v) ? k.map((vv, ii) => o[vv] = v[ii]) : o[k[0]] = k[1] : o
