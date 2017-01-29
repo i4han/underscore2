@@ -18,57 +18,67 @@ __.__isNull     = v => o === null // Do you need this? No
 __.isArray      = (v, t, f) => __.isIt(v, '[object Array]'     === Object.prototype.toString.call(v), t, f)
 __.isObject     = (v, t, f) => __.isIt(v, '[object Object]'    === Object.prototype.toString.call(v), t, f)
 __.isArguments  = (v, t, f) => __.isIt(v, '[object Arguments]' === Object.prototype.toString.call(v), t, f)
-__.isClient        = (t, f) => __.isIt(void 0, 'object'   === typeof window, t, f)
-__.hasJQueryLoaded = (t, f) => __.isIt(void 0, 'function' === typeof $ && $() instanceof jQuery, t, f)
-__.hasDOMLoaded    = (t, f) => __.isIt(void 0, document.readyState === 'complete' || document.readyState === 'interactive', t, f)
 
 __.isLower      = (v, t, f) => __.isIt(v, __.isString(v) && v.toLowerCase() === v, t, f)
 __.isUpper      = (v, t, f) => __.isIt(v, __.isString(v) && v.toUpperCase() === v, t, f)
-__.isJQuery     = (v, t, f) => __.isIt(v, __.isClient() && 'undefined' !== typeof $ && v instanceof $,    t, f)
-__.isElement    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTMLElement && v instanceof HTMLElement, t, f)
-__.isHTMLTag    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTML.Tag    && v instanceof HTML.Tag,    t, f)
-__.isStyleDeclaration = (v, t, f) => __.isIt(v, 'undefined' !== typeof CSSStyleDeclaration && v instanceof CSSStyleDeclaration, t, f)
-__.isArrayLike  = (v, t, f) => __.isIt(v, __.isArray(v) || __.isArguments(v) || __.isStyleDeclaration(v), t, f)
-__.isMeteor        = (t, f) => __.isIt(void 0, 'undefined' !== typeof Meteor,    t, f)
+
+__.isClient        = (t, f) => __.isIt(void 0, 'object'   === typeof window, t, f)
+__.isClient() && (() => {
+    __.hasJQueryLoaded =    (t, f) => __.isIt(void 0, 'function' === typeof $ && $() instanceof jQuery, t, f)
+    __.hasDOMLoaded    =    (t, f) => __.isIt(void 0, document.readyState === 'complete' || document.readyState === 'interactive', t, f)
+    __.isJQuery        = (v, t, f) => __.isIt(v, 'undefined' !== typeof $ && (v === undefined || v instanceof $), t, f)
+    __.on              = (e, f)    => document.addEventListener(e, f)
+})()
+
+__.isMeteor        = (t, f) => __.isIt(void 0, 'undefined' !== typeof Meteor, t, f)
 __.isMeteorServer  = (t, f) => __.isIt(void 0, __.isMeteor() && Meteor.isServer, t, f)
 __.isMeteorClient  = (t, f) => __.isIt(void 0, __.isMeteor() && Meteor.isClient, t, f)
 
-__.meteorStartup = f => __.isUndefined(__._meteor_startup, (() => __._meteor_startup = [f]), () => __._meteor_startup.push(f))
-__.runMeteorStartup = () => __._meteor_startup && __._meteor_startup.forEach(f => f())
-__._db = __._db || {}
-__._db_stack = __._db_stack || []
-__.db = (collection, data, fn) =>
-  __._db[collection] ? fn(__._db[collection], data) : __._db_stack.push({collection, data, fn})
+__.isMeteor() && (() => {
+    __.isElement    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTMLElement && v instanceof HTMLElement, t, f)
+    __.isHTMLTag    = (v, t, f) => __.isIt(v, 'undefined' !== typeof HTML.Tag    && v instanceof HTML.Tag,    t, f)
+    __.isStyleDeclaration = (v, t, f) => __.isIt(v, 'undefined' !== typeof CSSStyleDeclaration && v instanceof CSSStyleDeclaration, t, f)
+    __.isArrayLike  = (v, t, f) => __.isIt(v, __.isArray(v) || __.isArguments(v) || __.isStyleDeclaration(v), t, f)
 
-__.isBlazeView       = o => 'undefined' !== typeof Blaze.View && o instanceof Blaze.View
-__.isBlazeElement    = o => __.isHTMLTag(o) || __.isBlazeView(o) || __.isString(o)
-__.isBlazeTemplateInstance = o =>
-  'undefined' !== typeof Blaze.TemplateInstance && o instanceof Blaze.TemplateInstance
-__.isLookup          = o => __.isObject(o) && __.isString(o.name) && o.name.slice(0, 7) === 'lookup:'
-__.isBlazeAttr       = o => __.isObject(o) && !__.isLookup(o) && !__.isBlazeElement(o)
+    __.meteorStartup = f => __.isUndefined(__._meteor_startup, (() => __._meteor_startup = [f]), () => __._meteor_startup.push(f))
+    __.runMeteorStartup = () => __._meteor_startup && __._meteor_startup.forEach(f => f())
+
+    __.isBlazeView       = o => 'undefined' !== typeof Blaze.View && o instanceof Blaze.View
+    __.isBlazeElement    = o => __.isHTMLTag(o) || __.isBlazeView(o) || __.isString(o)
+    __.isBlazeTemplateInstance = o =>
+      'undefined' !== typeof Blaze.TemplateInstance && o instanceof Blaze.TemplateInstance
+    __.isLookup          = o => __.isObject(o) && __.isString(o.name) && o.name.slice(0, 7) === 'lookup:'
+    __.isBlazeAttr       = o => __.isObject(o) && !__.isLookup(o) && !__.isBlazeElement(o)
+    __.nameBlazeView     = o => __.isBlazeView(o) && 'name' in o && o.name.slice(9)
+})()
+
 __.isAttrPartKey     = k => __.isString(k) && '$' === k[0]
 __.isFunctionPartKey = k => __.isString(k) && __.check('alpha', k[0])
 __.maybeMustache     = v => __.isString(v) && v.indexOf('{') !== -1 && v.indexOf('}') !== -1 // includes
-__.maybeHtmlEntity   = v => __.isString(v) && v.indexOf('&#' > -1 && v.indexOf(';' > -1))
+__.maybeHtmlEntity   = v => __.isString(v) && v.indexOf('&#' > -1   && v.indexOf(';' > -1))
+__.includesMustache   = __.maybeMustache
+__.includesHtmlEntity = __.maybeHtmlEntity
 __.isEmptyArray      = a => a.length === 0
 __.isEmptyObject     = o => __.isEmptyArray(__.keys(o))
 __.isEmpty           = o =>
     ! o            ? true :
-    __.isJQuery(o) ? __.isEmptyArray(o)  :
+    __.isJQuery(o) ? __.isEmptyArray(o)  :  // what if it is not client?
     __.isArray(o)  ? __.isEmptyArray(o)  :
     __.isObject(o) ? __.isEmptyObject(o) : false
 
-__.nameBlazeView     = o => __.isBlazeView(o) && 'name' in o && o.name.slice(9)
 __.classOf = Function.prototype.call.bind(Object.prototype.toString)
 
-__.on = (e, f) => document.addEventListener(e, f)
 
 __.__isVisible = v => __.isFunction(v) ? v() : false === v ? false : true // need to rethink
 
 __.delay = (time, func) =>         // __.isMeteor(t, f)
   typeof Meteor === "undefined" ? setTimeout(func, time) : Meteor.setTimeout(func, time)
 __.setTimeout = (func, time) => __.isMeteor(() => Meteor.setTimeout(func, time), () => setTimeout(func, time))
-__.__timeout = __.delay;
+
+__._db = __._db || {}
+__._db_stack = __._db_stack || []
+__.db = (collection, data, fn) =>
+  __._db[collection] ? fn(__._db[collection], data) : __._db_stack.push({collection, data, fn})
 
 __.reduce     = (a, o, f) => a.reduce(f, o)
 __.reduceKeys = (obj, o, f) => __.keys(obj).reduce(f, o)
@@ -79,6 +89,7 @@ __.module  = v =>
     __.isBlazeView(v)             ? Sat.module[__.nameBlazeView(v)] : '?' // what to do? v _?
 
 __.getLocal = v => v.slice(6)
+__.checkEventKey = (e, code) => code === (e.KeyCode || e.which)
 
 const checkTable = {
    alpha:      (v) => /^[a-zA-Z]+$/.test(v),
@@ -101,16 +112,20 @@ __.check = (...args) => {
       return args[i - 1]
   return false }
 
-__.checkEventKey = (e, code) => code === (e.KeyCode || e.which)
+// string functions
 __.capitalize = s => __.isString(s) && s[0].toUpperCase() + s.slice(1)
 __.camelize   = s => __.isString(s) && s.replace(/-([a-z])/g, (_, $1) => $1.toUpperCase()).replace(/\-/g, '$')
 __.dasherize  = s => __.isString(s) && s.replace(/\$/g, '-').replace(/([A-Z])/g, $1 => '-' + $1.toLowerCase())
+__.padLeft  = (pad, s) =>  // pad: pading space ' ' _number_ like 6 or pad _string_ like '****'
+  (__.toString(s) + (__.isNumber(pad) ? Array(pad + 1).join(' ') : pad)).slice(0, (__.isNumber(pad) ? pad : pad.length))
+__.padRight = (pad, s) =>
+  ((__.isNumber(pad) ? Array(pad + 1).join(' ') : pad) + __.toString(s)).slice(  -(__.isNumber(pad) ? pad : pad.length))
 
 __.return = function(func, self) {
   self = self || this
   return __.isFunction(func) ? func.call(self, self) : func }
 
-__.toArray = s =>
+__.__toArray = s =>
   __.isArray(s)  ? s :
   __.isString(s) ? s.split(' ') :
   __.isEmpty(s)  ? [] : s
@@ -120,10 +135,6 @@ __.toString = v =>
   __.isObject(v) ? JSON.stringify(v) :
   __.isScalar(v) || __.isArray(v) ? v.toString() : void 0
 
-__.padLeft  = (pad, s) =>  // pad: pading space ' ' _number_ like 6 or pad _string_ like '****'
-  (__.toString(s) + (__.isNumber(pad) ? Array(pad + 1).join(' ') : pad)).slice(0, (__.isNumber(pad) ? pad : pad.length))
-__.padRight = (pad, s) =>
-  ((__.isNumber(pad) ? Array(pad + 1).join(' ') : pad) + __.toString(s)).slice(  -(__.isNumber(pad) ? pad : pad.length))
 
 /*/ next work
 __.assign = (obj) ->
@@ -206,13 +217,14 @@ __.array = function(a, v) {
 };
 
 
-__.function = o => __.isFunction(o) ? o : () => o
+__.function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args!
 __.object = (o, k, v) => {
     __.isScalar(k) ? o[k] = v :
     __.isArray(k)  ? __.isArray(v) ? k.map((vv, ii) => o[vv] = v[ii]) : o[k[0]] = k[1] : o
     return o }
 
 __.theKey = o => __.keys(o)[0]
+
 
 __.fixup = function(v) {
   var r;
@@ -252,8 +264,9 @@ __.indent = (b, i, str) => {
   i == null && (i = 1)
   return i ? b.replace(/^/gm, Array(i + 1).join(str || __.indentString)) : b }
 
+
 __.repeat = function(str, times) {
-  return Array(times + 1).join(str);
+  return Array(times + 1).join(str)
 };
 
 __.insertTemplate = function(page, id, data) {
