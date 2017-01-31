@@ -84,6 +84,9 @@ __.reduce     = (a, o, f) => a.reduce(f, o)
 __.reduceKeys = (obj, o, f) => __.keys(obj).reduce(f, o)
 __.eachKeys   = (obj, f)    => __.keys(obj).forEach(f)
 
+__.xmap = (a1, a2, f) => __.flattenArray(a1.map(k => a2.map(j => f(k, j))))
+
+
 __.module  = v =>
     __.isBlazeTemplateInstance(v) ? Sat.module[__.nameBlazeView(v.view)] :
     __.isBlazeView(v)             ? Sat.module[__.nameBlazeView(v)] : '?' // what to do? v _?
@@ -116,9 +119,9 @@ __.check = (...args) => {
 __.capitalize = s => __.isString(s) && s[0].toUpperCase() + s.slice(1)
 __.camelize   = s => __.isString(s) && s.replace(/-([a-z])/g, (_, $1) => $1.toUpperCase()).replace(/\-/g, '$')
 __.dasherize  = s => __.isString(s) && s.replace(/\$/g, '-').replace(/([A-Z])/g, $1 => '-' + $1.toLowerCase())
-__.padLeft  = (pad, s) =>  // pad: pading space ' ' _number_ like 6 or pad _string_ like '****'
+__.padLeft  = (pad, s) =>  // trimStart pad: pading space ' ' _number_ like 6 or pad _string_ like '****'
   (__.toString(s) + (__.isNumber(pad) ? Array(pad + 1).join(' ') : pad)).slice(0, (__.isNumber(pad) ? pad : pad.length))
-__.padRight = (pad, s) =>
+__.padRight = (pad, s) => // trimEnd
   ((__.isNumber(pad) ? Array(pad + 1).join(' ') : pad) + __.toString(s)).slice(  -(__.isNumber(pad) ? pad : pad.length))
 
 __.return = function(func, self) {
@@ -219,6 +222,7 @@ __.array = function(a, v) {
 
 __.function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args!
 __.object = (o, k, v) => {
+    __.isObject(k) ? o = __.assign(o, k) :
     __.isScalar(k) ? o[k] = v :
     __.isArray(k)  ? __.isArray(v) ? k.map((vv, ii) => o[vv] = v[ii]) : o[k[0]] = k[1] : o
     return o }
@@ -315,11 +319,11 @@ __.flatten = function(obj, chained_keys) {
   return toReturn;
 };
 
-__.flattenArray = function(a) {
-  return __.reduce(a, [], function(o, v) {
-    return __.array(o, v, __.isArray(v) ? void 0 : v);
-  });
-};
+__.__flattenArray = a =>
+    __.reduce(a, [], (o, v) => __.array(o, v, __.isArray(v) ? void 0 : v) )
+
+__.flattenArray = arr => arr.reduce(
+  (a, b) => a.concat(__.isArray(b) ? __.flattenArray(b) : b), [] )
 
 __.flattenObj = function(obj, chained_keys) {
   if (chained_keys == null) {
