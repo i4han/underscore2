@@ -89,7 +89,7 @@ __.db = (collection, data, fn) =>
   __._db[collection] ? fn(__._db[collection], data) : __._db_stack.push({collection, data, fn})
 
 __.reduce     = (a, o, f) => a.reduce(f, o)
-__.reduceKeys = (obj, o, f) => __.keys(obj).reduce(f, o)
+__.reduceKeys = (obj, o, f) =>  __.keys(obj).reduce(f, o)
 __.eachKeys   = (obj, f)    => __.keys(obj).forEach(f)
 
 __.xmap = (a1, a2, f) => __.flattenArray(a1.map(k => a2.map(j => f(k, j))))
@@ -229,7 +229,14 @@ __.array = function(a, v) {
 
 
 __.function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args!
-__.object = (o, k, v) => {
+__.object = (o, k, v) => { // if . is in the middle of key?
+    if (__.isString(k) && k.includes('.') && k.indexOf('.') && k[k.length -1] !== '.') {
+        let re = k.match(/^([^.]+)\.(.*$)/)
+        let [key, key_rest] = [re[1], re[2]]
+        o[key] = o[key] || {}
+        __.object(o[key], key_rest, v)
+        return o
+    }
     __.isObject(k) ? o = __.assign(o, k) :
     __.isScalar(k) ? o[k] = v :
     __.isArray(k)  ? __.isArray(v) ? k.map((vv, ii) => o[vv] = v[ii]) : o[k[0]] = k[1] : o
