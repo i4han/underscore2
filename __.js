@@ -76,6 +76,10 @@ __.isEmpty           = o =>
 
 __.classOf = Function.prototype.call.bind(Object.prototype.toString)
 
+__.error = check => {
+    check || console.log('error') 
+//    check || throw new Meteor.error()
+}
 
 __.__isVisible = v => __.isFunction(v) ? v() : false === v ? false : true // need to rethink
 
