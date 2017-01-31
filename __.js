@@ -50,7 +50,15 @@ __.isMeteor() && (() => {
     __.isLookup          = o => __.isObject(o) && __.isString(o.name) && o.name.slice(0, 7) === 'lookup:'
     __.isBlazeAttr       = o => __.isObject(o) && !__.isLookup(o) && !__.isBlazeElement(o)
     __.nameBlazeView     = o => __.isBlazeView(o) && 'name' in o && o.name.slice(9)
+
+    __.currentRoute = () => Router.current().route.getName()
+    __.render       = n  => Template[n].renderFunction().value
 })()
+
+__.insertTemplate = (page, id, data) => {
+    data = data || {}
+    $('#' + id).empty()
+    return Blaze.renderWithData(Template[page], __.isEmpty(data) ? Template[page].helpers : data, document.getElementById(id)) }
 
 __.isAttrPartKey     = k => __.isString(k) && '$' === k[0]
 __.isFunctionPartKey = k => __.isString(k) && __.check('alpha', k[0])
@@ -273,29 +281,14 @@ __.repeat = function(str, times) {
   return Array(times + 1).join(str)
 };
 
-__.insertTemplate = function(page, id, data) {
-  if (data == null) {
-    data = {};
-  }
-  $('#' + id).empty();
-  return Blaze.renderWithData(Template[page], __.isEmpty(data) ? Template[page].helpers : data, document.getElementById(id));
-};
 
-__.currentRoute = function() {
-  return Router.current().route.getName();
-};
+__.reKey = (o, old, n) => {
+    if (o.hasOwnProperty(old)) {
+        o[n] = o[old]
+        delete o[old] }
+    return this }
 
-__.render = function(page) {
-  return Template[page].renderFunction().value;
-};
-
-__.rekey = function(obj, oldName, newName) {
-  if (obj.hasOwnProperty(oldName)) {
-    obj[newName] = obj[oldName];
-    delete obj[oldName];
-  }
-  return this;
-};
+__.rekey = __.reKey
 
 __.flatten = function(obj, chained_keys) {
   var flatObject, i, j, toReturn, _i, _j, _len, _len1;
@@ -319,10 +312,10 @@ __.flatten = function(obj, chained_keys) {
   return toReturn;
 };
 
-__.__flattenArray = a =>
+__.__flattenArray = a => // old one
     __.reduce(a, [], (o, v) => __.array(o, v, __.isArray(v) ? void 0 : v) )
 
-__.flattenArray = arr => arr.reduce(
+__.flattenArray = arr => arr.reduce(  // es6 function
   (a, b) => a.concat(__.isArray(b) ? __.flattenArray(b) : b), [] )
 
 __.flattenObj = function(obj, chained_keys) {
@@ -335,7 +328,8 @@ __.flattenObj = function(obj, chained_keys) {
   });
 };
 
-__.position = function(obj) {
+
+__.__position = function(obj) {
   return Meteor.setTimeout(function() {
     return $('#' + obj.parentId + ' .' + obj["class"]).css({
       top: obj.top,
@@ -344,6 +338,10 @@ __.position = function(obj) {
     });
   }, 200);
 };
+
+
+
+// client
 
 __.scrollSpy = function(obj) {
   var $$;
