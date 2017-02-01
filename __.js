@@ -5,9 +5,9 @@ __ = __ || {} // I need to put his because meteor server __ is undefined. why?
 __.keys        = o => Object.keys(o)
 __.t     = (v, t) => 'function' === typeof t ? (v === t ? t() : t(v)) : 'undefined' === typeof t ? true  : t
 __.f     = (v, f) => 'function' === typeof f ? (v === f ? f() : f(v)) : 'undefined' === typeof f ? false : f
-__.true  = (v, t) => v && __.t(v, t)
-__.false = (v, f) => v || __.f(v, f)
-__.isIt  = (v, it, t, f) => it ? __.t(v, t) : __.f(v, f)
+__.isTrue  = (v, t) => { v && __.t(v, t); return !!v === true  }
+__.isFalse = (v, f) => { v || __.f(v, f); return !!v === false }
+__.isIt  = (v, it, t, f) => it ? (__.t(v, t) || true) : (__.f(v, f) && false) // async
 __.isFunction   = (v, t, f) => __.isIt(v, 'function'  === typeof v, t, f)
 __.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
 __.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
@@ -77,7 +77,7 @@ __.isEmpty           = o =>
 __.classOf = Function.prototype.call.bind(Object.prototype.toString)
 
 __.error = check => {
-    check || console.log('error') 
+    check || console.log('error')
 //    check || throw new Meteor.error()
 }
 
@@ -89,8 +89,26 @@ __.setTimeout = (func, time) => __.isMeteor(() => Meteor.setTimeout(func, time),
 
 __._db = __._db || {}
 __._db_stack = __._db_stack || []
-__.db = (collection, data, fn) =>
+
+__.isCollection      = (c, t, f) => __.isIt(c,
+    __._db[c]   &&
+    'undefined' !== typeof Mongo            &&
+    'undefined' !== typeof Mongo.Collection && __._db[c] instanceof Mongo.Collection, t, f)
+__.isCollectionReady = (c, t, f) => __.isIt(c,
+    __.isCollection(c) &&
+    __._db[c].handle   && __._db[c].handle.ready(), t, f)
+__.allCollectionsReady  = (...c) => {
+    let [t, f] = c.slice(-2)
+    return __.isIt(c, c.length === c.filter(cc => __.isCollectionReady(cc)).length, t, f) }
+__.whenCollectionsReady = (...c) => {
+    let [m, fn] = c.slice(-2)
+    c.length ===
+    c.filter(cc => __.isCollection(cc)).filter(cc => __.isCollectionReady(cc, null, () => __._db[cc].subscribes.push(fn) )).length && fn(m) }
+
+// remove?
+__.db = (collection, data, fn) => // wrong way
   __._db[collection] ? fn(__._db[collection], data) : __._db_stack.push({collection, data, fn})
+
 
 __.reduce     = (a, o, f) => a.reduce(f, o)
 __.reduceKeys = (obj, o, f) =>  __.keys(obj).reduce(f, o)
