@@ -13,14 +13,22 @@ __.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
 __.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
 __.isNumber     = (v, t, f) => __.isIt(v, 'number'    === typeof v, t, f)
 __.isBoolean    = (v, t, f) => __.isIt(v, 'boolean'   === typeof v, t, f)
+__.isNaN        = (v, t, f) => __.isIt(v, isNaN(v) && 'number'   === typeof v, t, f)
 __.isScalar     = (v, t, f) => __.isIt(v, __.isNumber(v) || __.isString(v) || __.isBoolean(v), t, f)
 __.__isNull     = v => o === null // Do you need this? No
 __.isArray      = (v, t, f) => __.isIt(v, '[object Array]'     === Object.prototype.toString.call(v), t, f)
 __.isObject     = (v, t, f) => __.isIt(v, '[object Object]'    === Object.prototype.toString.call(v), t, f)
 __.isArguments  = (v, t, f) => __.isIt(v, '[object Arguments]' === Object.prototype.toString.call(v), t, f)
+__.isArrayLike  = (v, t, f) => __.isIt(v, __.isArray(v) || __.isArguments(v), t, f)
 
 __.isLower      = (v, t, f) => __.isIt(v, __.isString(v) && v.toLowerCase() === v, t, f)
 __.isUpper      = (v, t, f) => __.isIt(v, __.isString(v) && v.toUpperCase() === v, t, f)
+
+
+
+
+
+
 
 __.isClient        = (t, f) => __.isIt(void 0, 'object'   === typeof window, t, f)
 __.isClient() && (() => {
@@ -62,19 +70,109 @@ __.insertTemplate = (page, id, data) => {
 
 __.isAttrPartKey     = k => __.isString(k) && '$' === k[0]
 __.isFunctionPartKey = k => __.isString(k) && __.check('alpha', k[0])
-__.maybeMustache     = v => __.isString(v) && v.indexOf('{') !== -1 && v.indexOf('}') !== -1 // includes
-__.maybeHtmlEntity   = v => __.isString(v) && v.indexOf('&#' > -1   && v.indexOf(';' > -1))
-__.includesMustache   = __.maybeMustache
-__.includesHtmlEntity = __.maybeHtmlEntity
+
+
+__.isEnclosedBy      = (v, a, b) => { // __.isEnclosedBy(v, '{', '}'), __.isEnclosedBy(v, '&#', ';')
+    let ai, bi
+    if (__.isString(v) &&
+        (ai = v.indexOf(a)) !== -1 &&
+        (bi = v.indexOf(b)) !== -1 && ai < bi )
+        return true
+    else
+        return false }
+
 __.isEmptyArray      = a => a.length === 0
 __.isEmptyObject     = o => __.isEmptyArray(__.keys(o))
 __.isEmpty           = o =>
     ! o            ? true :
-    __.isJQuery(o) ? __.isEmptyArray(o)  :  // what if it is not client?
-    __.isArray(o)  ? __.isEmptyArray(o)  :
+    __.isArrayLike(o)  ? __.isEmptyArray(o)  :
     __.isObject(o) ? __.isEmptyObject(o) : false
 
 __.classOf = Function.prototype.call.bind(Object.prototype.toString)
+
+__.equalValues = (x, y) => {
+  if (__.isNaN(x) && __.isNaN(y)) return true
+  if (x === y)                    return true
+  if ((__.isFunction(x)    && __.isFunction(y))    ||
+      (x instanceof Date   && y instanceof Date)   ||
+      (x instanceof RegExp && y instanceof RegExp) ||
+      (x instanceof String && y instanceof String) ||
+      (x instanceof Number && y instanceof Number)) {
+      return x.toString() === y.toString() }
+
+  // At last checking prototypes as good as we can
+  if (!(x instanceof Object && y instanceof Object)) return false
+  if (x.isPrototypeOf(y) || y.isPrototypeOf(x))      return false // what is this?
+  if (x.constructor !== y.constructor)               return false
+  if (x.prototype   !== y.prototype)                 return false
+ // if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1) {
+ //    return false }
+
+  // Quick checking of one object being a subset of another.
+  // todo: cache the structure of arguments[0] for performance
+  let p
+  for (p in y) {
+      if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+          return false;
+      }
+      else if (typeof y[p] !== typeof x[p]) {
+          return false;
+      }
+  }
+  let leftChain, rightChain
+  for (p in x) {
+      if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
+          return false;
+      }
+      else if (typeof y[p] !== typeof x[p]) {
+          return false;
+      }
+
+      switch (typeof (x[p])) {
+          case 'object':
+          case 'function':
+
+              leftChain.push(x);
+              rightChain.push(y);
+
+              if (!__.equalValues (x[p], y[p])) {
+                  return false;
+              }
+
+              leftChain.pop();
+              rightChain.pop();
+              break;
+
+          default:
+              if (x[p] !== y[p]) {
+                  return false;
+              }
+              break;
+      }
+  }
+
+  return true
+}
+
+
+__.equalObjects = (...args) => {
+  if (args.length < 1) {
+    return true //Die silently? Don't know how to handle such case, please help...
+    // throw "Need two or more arguments to compare";
+  }
+  let i, l, leftChain, rightChain
+  for (i = 1, l = args.length; i < l; i++) {
+
+      leftChain  = [] //Todo: this can be cached
+      rightChain = []
+
+      if (!__.equalValues(args[0], args[i])) {
+          return false;
+      }
+  }
+  return true
+}
+
 
 __.error = check => {
     check || console.log('error')
@@ -87,6 +185,8 @@ __.delay = (time, func) =>         // __.isMeteor(t, f)
   typeof Meteor === "undefined" ? setTimeout(func, time) : Meteor.setTimeout(func, time)
 __.setTimeout = (func, time) => __.isMeteor(() => Meteor.setTimeout(func, time), () => setTimeout(func, time))
 
+
+// mongo db
 __._db = __._db || {}
 __._db_stack = __._db_stack || []
 
@@ -109,6 +209,7 @@ __.whenCollectionsReady = (...c) => {
 __.db = (collection, data, fn) => // wrong way
   __._db[collection] ? fn(__._db[collection], data) : __._db_stack.push({collection, data, fn})
 
+// end of mongo
 
 __.reduce     = (a, o, f) => a.reduce(f, o)
 __.reduceKeys = (obj, o, f) =>  __.keys(obj).reduce(f, o)
@@ -174,39 +275,37 @@ __.assign = (obj) ->
    (args = [].slice.call arguments).length > 1 and args[1..].forEach (o) -> obj[k] = v for k, v of o
    obj
    combining two objects.
-*/
+
+function copy(obj) {
+  var copy = Object.create(Object.getPrototypeOf(obj));
+  var propNames = Object.getOwnPropertyNames(obj);
+
+  propNames.forEach(function(name) {
+    var desc = Object.getOwnPropertyDescriptor(obj, name);
+    Object.defineProperty(copy, name, desc);
+  });
+
+  return copy;
+} */
 __.assign = function(obj) {
   var args;
   (args = [].slice.call(arguments)).length > 1 && args.slice(1).forEach(function(o) {
-    var k, v, _results;
+    var k, _results;
     _results = [];
     for (k in o) {
-      v = o[k];
-      _results.push(obj[k] = v);
+      _results.push(obj[k] = o[k]);
     }
     return _results;
   });
-  return obj;
-};
+  return obj }
 
-__.compare = function(obj, properties, except) {
-  return __.reduceKeys(properties, {}, function(o, k) {
-    if (except && (except.indexOf(k) > -1)) {
-      return o;
-    } else {
-      if (__.isObject(obj[k]) && __.isObject(properties[k])) {
-        return __.object(o, k, __.compare(obj[k], properties[k], except));
-      } else {
-        if (obj[k] !== properties[k]) {
-          return __.object(o, k, properties[k]);
-        } else {
-          return o;
-        }
-      }
-    }
-  });
-};
+__.uniqueProperties = (obj, properties) =>  // find unique properties that doesn't have in obj key: value.
+    __.reduceKeys(properties, {}, (o, k) =>
+        __.isObject(obj[k]) && __.isObject(properties[k]) ?
+            __.object(o, k, __.uniqueProperties(obj[k], properties[k]))     :
+            obj[k] !== properties[k]) ? __.object(o, k, properties[k]) : o
 
+__.compare = __.uniqueProperties
 __.extend = __.assign
 
 __.remove = (obj, key) => {
@@ -250,7 +349,7 @@ __.array = function(a, v) {
 };
 
 
-__.function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args!
+__.__function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args! don't need it.
 __.object = (o, k, v) => { // if . is in the middle of key?
     if (__.isString(k) && k.includes('.') && k.indexOf('.') && k[k.length -1] !== '.') {
         let re = k.match(/^([^.]+)\.(.*$)/)
