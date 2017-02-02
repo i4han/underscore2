@@ -90,7 +90,30 @@ __.isEmpty           = o =>
 
 __.classOf = Function.prototype.call.bind(Object.prototype.toString)
 
-__.equalValues = (x, y) => {
+__.indexOf = (a, f) => { // __.indexOf(a, (v,i) => v.time === '..time..')
+    if (!__.isArrayLike(a)) return -1
+    for (let i = 0; i < a.length; i++)
+        if (f(a[i], i, a)) return i
+    return -1 }
+
+// __.uniqueArray(a, (a) => (v, i) => v.time === a.time)
+const default_f = (v) => (vv) => v === vv
+
+__.chopArray = (a, chop, f) => {
+    f = f || default_f
+    return chop.reduce((aa, v, i) => {
+        let item = aa.pop()
+        let index = __.indexOf(item, f(v, i))
+        return aa.concat([item.slice(0, index), item.slice(index)]) }, [a])
+}
+__.uniqueArray  = (a, f) => {
+    f = f || default_f
+    return a.filter((v, i) => __.indexOf(a, f(v, i)) === i) }
+__.intersection = (x, y, f) => {
+    f = f || default_f
+    return __.uniqueArray( x.filter((v, i) => __.indexOf(y, f(v, i)) != -1) )}
+
+__.__equalValues = (x, y) => {
   if (__.isNaN(x) && __.isNaN(y)) return true
   if (x === y)                    return true
   if ((__.isFunction(x)    && __.isFunction(y))    ||
@@ -127,7 +150,6 @@ __.equalValues = (x, y) => {
       else if (typeof y[p] !== typeof x[p]) {
           return false;
       }
-
       switch (typeof (x[p])) {
           case 'object':
           case 'function':
@@ -138,11 +160,9 @@ __.equalValues = (x, y) => {
               if (!__.equalValues (x[p], y[p])) {
                   return false;
               }
-
               leftChain.pop();
               rightChain.pop();
               break;
-
           default:
               if (x[p] !== y[p]) {
                   return false;
@@ -150,11 +170,13 @@ __.equalValues = (x, y) => {
               break;
       }
   }
-
   return true
 }
 
+__.equalObject = (x, y) => {
 
+}
+/*
 __.equalObjects = (...args) => {
   if (args.length < 1) {
     return true //Die silently? Don't know how to handle such case, please help...
@@ -173,12 +195,15 @@ __.equalObjects = (...args) => {
   return true
 }
 
-
+*/
 __.error = check => {
     check || console.log('error')
 //    check || throw new Meteor.error()
 }
 
+// misc
+
+__.require = f => delete require.cache[f] && require(f)
 __.__isVisible = v => __.isFunction(v) ? v() : false === v ? false : true // need to rethink
 
 __.delay = (time, func) =>         // __.isMeteor(t, f)
@@ -405,9 +430,7 @@ __.indent = (b, i, str) => {
   return i ? b.replace(/^/gm, Array(i + 1).join(str || __.indentString)) : b }
 
 
-__.repeat = function(str, times) {
-  return Array(times + 1).join(str)
-};
+__.repeatString = (s, times) => Array(times + 1).join(s)
 
 
 __.reKey = (o, old, n) => {
