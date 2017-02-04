@@ -97,21 +97,64 @@ __.indexOf = (a, f) => { // __.indexOf(a, (v,i) => v.time === '..time..')
     return -1 }
 
 // __.uniqueArray(a, (a) => (v, i) => v.time === a.time)
+
+__.cleanArray = (a, v) => {
+    for (let i = 0; i < a.length; i++)
+        if (a[i] === v)
+            a.splice(i--, 1)
+    return a }
+
 const default_f = (v) => (vv) => v === vv
 
 __.chopArray = (a, chop, f) => {
     f = f || default_f
+    // console.log('a', a, 'chop', chop, 'f', f)
     return chop.reduce((aa, v, i) => {
         let item = aa.pop()
         let index = __.indexOf(item, f(v, i))
-        return aa.concat([item.slice(0, index), item.slice(index)]) }, [a])
-}
+        if (index === -1) return aa.concat([item])
+        else return aa.concat([item.slice(0, index), item.slice(index)]) }, [a]) }
+
+__.__maxArray = (a, f) => Math.max.apply(null, a.map(f))
+__.__minArray = (a, f) => Math.min.apply(null, a.map(f))
+
+__.sum     = (...args) => args.reduce(((a, v) => __.isUndefined(v) ? a : a + v), 0)
+__.count   = (...args) => args.reduce(((a, v) => __.isUndefined(v) ? a : a + 1), 0)
+__.average = (...args) => __.sum.apply({}, args) / __.count.apply({}, args)
+__.lastN   = (a, n, f) => a.filter((v, i) => f(v, i)).reverse().slice(0, n)
+
+__.productArray = (x, y, f) => x.reduce((a, v, i) => {
+    a[i] = f(v, y[i])
+    return a }, [])
+__.linearArray  = (x, n, f) => x.reduce((a, v, i) => {
+    a[i] = f.apply({}, x.slice((i > n - 1) ? i - n + 1 : 0, i + 1))
+    return a }, [])
+
+__._linearArray = (x, n, f, fcon, novalue) => x.reduce((a, v, i) => {
+        fcon = fcon || (v => true)
+        //if (i === 0) return fcon(v) ? a.concat(v) : a.concat(novalue)
+        if (fcon(v)) return a.concat(f.apply({}, __.lastN(a, n, fcon).concat(v)))
+        else return a.concat(novalue) }, [])
+
+
+__.inflextion = x => x.reduce((a, v, i) => {
+    if (i === 0 || i === x.length - 1) return a.concat(0)
+    return ((x[i - 1] >= v && v >= x[i + 1]) ||
+    (x[i - 1] <= v && v <= x[i + 1])) ? a.concat(0) : a.concat(v)}, [])
+
 __.uniqueArray  = (a, f) => {
     f = f || default_f
     return a.filter((v, i) => __.indexOf(a, f(v, i)) === i) }
-__.intersection = (x, y, f) => {
+__.intersectionArray = (x, y, f) => {
     f = f || default_f
     return __.uniqueArray( x.filter((v, i) => __.indexOf(y, f(v, i)) != -1) )}
+
+
+// __.flattenArr = arr => arr.reduce(  // es6 function
+//     (a, v) => a.concat(__.isArray(v) ?  : v), [] )
+
+__.flattenArray = arr => arr.reduce(  // es6 function
+    (a, v) => a.concat(__.isArray(v) ? __.flattenArray(v) : v), [] )
 
 __.__equalValues = (x, y) => {
   if (__.isNaN(x) && __.isNaN(y)) return true
@@ -463,11 +506,6 @@ __.flatten = function(obj, chained_keys) {
   return toReturn;
 };
 
-__.__flattenArray = a => // old one
-    __.reduce(a, [], (o, v) => __.array(o, v, __.isArray(v) ? void 0 : v) )
-
-__.flattenArray = arr => arr.reduce(  // es6 function
-  (a, b) => a.concat(__.isArray(b) ? __.flattenArray(b) : b), [] )
 
 __.flattenObj = function(obj, chained_keys) {
   if (chained_keys == null) {
