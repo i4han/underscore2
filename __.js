@@ -121,15 +121,16 @@ __.__minArray = (a, f) => Math.min.apply(null, a.map(f))
 __.sum     = (...args) => args.reduce(((a, v) => __.isUndefined(v) ? a : a + v), 0)
 __.count   = (...args) => args.reduce(((a, v) => __.isUndefined(v) ? a : a + 1), 0)
 __.average = (...args) => __.sum.apply({}, args) / __.count.apply({}, args)
-__.lastN   = (a, n, f) => a.filter((v, i) => f(v, i)).reverse().slice(0, n)
-
-__.productArray = (x, y, f) => x.reduce((a, v, i) => {
+__.filterLastN  = (a, n, f) => a.filter((v, i) => f(v, i)).reverse().slice(0, n)
+__.lastN   = __.filterLastN
+__.coMap = (x, y, f) => x.reduce((a, v, i) => {
     a[i] = f(v, y[i])
     return a }, [])
-__.linearArray  = (x, n, f) => x.reduce((a, v, i) => {
+__.productArray = __.coMap
+__.nReduce  = (x, n, f) => x.reduce((a, v, i) => {
     a[i] = f.apply({}, x.slice((i > n - 1) ? i - n + 1 : 0, i + 1))
     return a }, [])
-
+__.linearArray = __.nReduce
 __._linearArray = (x, n, f, fcon, novalue) => x.reduce((a, v, i) => {
         fcon = fcon || (v => true)
         //if (i === 0) return fcon(v) ? a.concat(v) : a.concat(novalue)
