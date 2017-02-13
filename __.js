@@ -11,7 +11,7 @@ __.isIt  = (v, it, t, f) => it ? (__.t(v, t) || true) : (__.f(v, f) && false) //
 __.isFunction   = (v, t, f) => __.isIt(v, 'function'  === typeof v, t, f)
 __.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
 __.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
-__.isNumber     = (v, t, f) => __.isIt(v, 'number'    === typeof v, t, f)
+__.isNumber     = (v, t, f) => __.isIt(v, ! isNaN(v) && 'number' === typeof v, t, f)
 __.isBoolean    = (v, t, f) => __.isIt(v, 'boolean'   === typeof v, t, f)
 __.isNaN        = (v, t, f) => __.isIt(v, isNaN(v) && 'number'   === typeof v, t, f)
 __.isScalar     = (v, t, f) => __.isIt(v, __.isNumber(v) || __.isString(v) || __.isBoolean(v), t, f)
@@ -23,10 +23,6 @@ __.isArrayLike  = (v, t, f) => __.isIt(v, __.isArray(v) || __.isArguments(v), t,
 
 __.isLower      = (v, t, f) => __.isIt(v, __.isString(v) && v.toLowerCase() === v, t, f)
 __.isUpper      = (v, t, f) => __.isIt(v, __.isString(v) && v.toUpperCase() === v, t, f)
-
-
-
-
 
 
 
@@ -104,7 +100,7 @@ __.cleanArray = (a, v) => {
             a.splice(i--, 1)
     return a }
 
-const default_f = (v) => (vv) => v === vv
+const default_f = v => w => v === w
 
 __.chopArray = (a, chop, f) => {
     f = f || default_f
@@ -118,12 +114,16 @@ __.chopArray = (a, chop, f) => {
 __.__maxArray = (a, f) => Math.max.apply(null, a.map(f))
 __.__minArray = (a, f) => Math.min.apply(null, a.map(f))
 
-__.sum     = (...args) => args.reduce(((a, v) => __.isUndefined(v) ? a : a + v), 0)
-__.count   = (...args) => args.reduce(((a, v) => __.isUndefined(v) ? a : a + 1), 0)
-__.average = (...args) => __.sum.apply({}, args) / __.count.apply({}, args)
+__.sum     = (...args) => args.reduce(((a, v) => __.isNumber(v) ? a + v : a), 0)
+__.count   = (...args) => args.reduce(((a, v) => __.isNumber(v) ? a + 1 : a), 0)
+__.average = (...args) => {
+    let count = __.count.apply({}, args)
+    if (count > 0) return __.sum.apply({}, args) / count
+    else return NaN  }
+
 __.lastN  = (a, n, f) => {
     f = f || (() => true)
-    return a.filter((v, i) => f(v, i)).slice(-n) }
+    return a.filter((v, i, a) => f(v, i, a)).slice(-n) }
 __.coMap = (x, y, f) => x.reduce((a, v, i) => {
     a[i] = f(v, y[i])
     return a }, [])
@@ -144,12 +144,27 @@ __.inflextion = x => x.reduce((a, v, i) => {
     return ((x[i - 1] >= v && v >= x[i + 1]) ||
     (x[i - 1] <= v && v <= x[i + 1])) ? a.concat(0) : a.concat(v)}, [])
 
+
+
 __.uniqueArray  = (a, f) => {
     f = f || default_f
     return a.filter((v, i) => __.indexOf(a, f(v, i)) === i) }
+
 __.intersectionArray = (x, y, f) => {
     f = f || default_f
-    return __.uniqueArray( x.filter((v, i) => __.indexOf(y, f(v, i)) != -1) )}
+    return __.uniqueArray( x.filter((v, i) => __.indexOf(y, f(v, i)) !== -1) ) }
+
+__.unionArray = (x, y, f) => {
+    f = f || default_f
+    return __.intersectionArray(x, y, f)
+        .concat(__.subtractionArray(x, y, f))
+        .concat(__.subtractionArray(y, x, f))
+        .sort((a,b) => f(a) - f(b)) }
+
+__.subtractionArray = (x, y, f) => {
+    f = f || default_f
+    return __.uniqueArray( x.filter((v, i) => __.indexOf(y, f(v, i)) === -1) ) }
+
 
 
 // __.flattenArr = arr => arr.reduce(  // es6 function
@@ -218,9 +233,19 @@ __.__equalValues = (x, y) => {
   return true
 }
 
-__.equalObject = (x, y) => {
+__.equalObjects = (x, y) => {
+    if ( x.constructor !== y.constructor ) return false
+    for (let p in x) {
+        if ( !x.hasOwnProperty(p) ) continue
+        if ( !y.hasOwnProperty(p) ) return false
+        if ( x[p] === y[p] ) continue
+        if ( __.isObject(x[p]) && __.isObject(y[p]) )
+            return __.equalObjects(x[p], y[p])
+        else return false  }
 
-}
+    for (let p in y )
+        if ( y.hasOwnProperty(p) && ! x.hasOwnProperty(p) ) return false
+    return true }
 /*
 __.equalObjects = (...args) => {
   if (args.length < 1) {
@@ -248,7 +273,10 @@ __.error = check => {
 
 // misc
 
-__.require = f => delete require.cache[f] && require(f)
+__.require = f => {
+    delete require.cache[f] // find full path
+    return require(f) }
+
 __.__isVisible = v => __.isFunction(v) ? v() : false === v ? false : true // need to rethink
 
 __.delay = (time, func) =>         // __.isMeteor(t, f)
@@ -281,7 +309,7 @@ __.db = (collection, data, fn) => // wrong way
 
 // end of mongo
 
-__.reduce     = (a, o, f) => a.reduce(f, o)
+__.reduce     = (a, o, f)   => a.reduce(f, o)
 __.reduceKeys = (obj, o, f) =>  __.keys(obj).reduce(f, o)
 __.eachKeys   = (obj, f)    => __.keys(obj).forEach(f)
 
@@ -370,7 +398,7 @@ __.assign = function(obj) {
   return obj }
 
 __.uniqueProperties = (obj, properties) =>  // find unique properties that doesn't have in obj key: value.
-    __.reduceKeys(properties, {}, (o, k) =>
+    __.reduceKeys(properties, {}, (o, k) => // it is like a = a || []
         __.isObject(obj[k]) && __.isObject(properties[k]) ?
             __.object(o, k, __.uniqueProperties(obj[k], properties[k]))     :
             obj[k] !== properties[k]) ? __.object(o, k, properties[k]) : o
@@ -379,8 +407,9 @@ __.compare = __.uniqueProperties
 __.extend = __.assign
 
 __.remove = (obj, key) => {
-  delete obj[key]
-  return obj }
+    //if(__.isArray(key)) key.forEach(v => delete obj[v])
+    delete obj[key]
+    return obj  }
 
 __.pop = (obj, key) => {
   let ret = obj[key]
