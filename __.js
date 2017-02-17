@@ -357,7 +357,11 @@ __.return = function(func, self) {
   self = self || this
   return __.isFunction(func) ? func.call(self, self) : func }
 
-__.fnValue = (fn, self) =>
+__.fnValue = (obj, self) => {
+    __.keys(obj).forEach(  v => obj[v] =
+        __.isFunction(obj[v]) ? obj[v](self) :
+        __.isObject(obj[v])   ? __.fnValue(obj[v], self) : obj[v]  )
+    return obj }
 
 __.__toArray = s =>
   __.isArray(s)  ? s :
