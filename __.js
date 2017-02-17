@@ -357,6 +357,8 @@ __.return = function(func, self) {
   self = self || this
   return __.isFunction(func) ? func.call(self, self) : func }
 
+__.fnValue = (fn, self) =>
+
 __.__toArray = s =>
   __.isArray(s)  ? s :
   __.isString(s) ? s.split(' ') :
