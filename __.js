@@ -7,7 +7,7 @@ __.t     = (v, t) => 'function' === typeof t ? (v === t ? t() : t(v)) : 'undefin
 __.f     = (v, f) => 'function' === typeof f ? (v === f ? f() : f(v)) : 'undefined' === typeof f ? false : f
 __.isTrue  = (v, t) => { v && __.t(v, t); return !!v === true  }
 __.isFalse = (v, f) => { v || __.f(v, f); return !!v === false }
-__.isIt  = (v, it, t, f) => it ? (__.t(v, t) || true) : (__.f(v, f) && false) // async
+__.isIt  = (v, it, t, f) => it ? (__.t(v, t) || true) : (__.f(v, f) && false) 
 __.isFunction   = (v, t, f) => __.isIt(v, 'function'  === typeof v, t, f)
 __.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
 __.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
@@ -463,7 +463,7 @@ __.object = (o, k, v) => { // if . is in the middle of key?
         __.object(o[key], key_rest, v)
         return o
     }
-    __.isObject(k) ? o = __.assign(o, k) :
+    __.isObject(k) ? o = __.assign(o, k, v) :
     __.isScalar(k) ? o[k] = v :
     __.isArray(k)  ? __.isArray(v) ? k.map((vv, ii) => o[vv] = v[ii]) : o[k[0]] = k[1] : o
     return o }
