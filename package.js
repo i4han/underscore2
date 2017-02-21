@@ -2,7 +2,7 @@
 
 Package.describe({
     summary: 'Underscore2: Underscore-like library that provide a set of useful functions for Meteor.',
-    "version": "0.5.61",
+    "version": "0.5.63",
     git: 'https://github.com/i4han/underscore2.git',
     documentation: 'README.md'
 });
