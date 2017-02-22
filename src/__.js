@@ -7,7 +7,7 @@ __.t     = (v, t) => 'function' === typeof t ? (v === t ? t() : t(v)) : 'undefin
 __.f     = (v, f) => 'function' === typeof f ? (v === f ? f() : f(v)) : 'undefined' === typeof f ? false : f
 __.isTrue  = (v, t) => { v && __.t(v, t); return !!v === true  }
 __.isFalse = (v, f) => { v || __.f(v, f); return !!v === false }
-__.isIt  = (v, it, t, f) => it ? (__.t(v, t) || true) : (__.f(v, f) && false) 
+__.isIt  = (v, it, t, f) => it ? (__.t(v, t) || true) : (__.f(v, f) && false)
 __.isFunction   = (v, t, f) => __.isIt(v, 'function'  === typeof v, t, f)
 __.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
 __.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
@@ -113,13 +113,6 @@ __.chopArray = (a, chop, f) => {
 
 __.__maxArray = (a, f) => Math.max.apply(null, a.map(f))
 __.__minArray = (a, f) => Math.min.apply(null, a.map(f))
-
-__.sum     = (...args) => args.reduce(((a, v) => __.isNumber(v) ? a + v : a), 0)
-__.count   = (...args) => args.reduce(((a, v) => __.isNumber(v) ? a + 1 : a), 0)
-__.average = (...args) => {
-    let count = __.count.apply({}, args)
-    if (count > 0) return __.sum.apply({}, args) / count
-    else return NaN  }
 
 __.lastN  = (a, n, f) => {
     f = f || (() => true)
@@ -843,5 +836,7 @@ __.removeMultipleRules = function(obj) {
     }
   });
 };
+
+__.isMeteorServer() || require('./es6.js')
 
 'undefined' === typeof Meteor && (module.exports = __)
