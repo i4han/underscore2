@@ -9,6 +9,8 @@ Package.describe({
 
 Package.on_use( function (api) {
     api.use('ecmascript@0.6.1')
-    api.add_files('src/__.js', ['client', 'server'])
-    api.export('__',          ['client', 'server'])
+    api.add_files('src/__.js',   ['client', 'server'])
+    api.add_files('src/extra.js' ['client', 'server'])
+    api.add_files('src/es6.js'   'client')
+    api.export('__',             ['client', 'server'])
 });
