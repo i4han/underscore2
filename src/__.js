@@ -310,8 +310,8 @@ __.xmap = (a1, a2, f) => __.flattenArray(a1.map(k => a2.map(j => f(k, j))))
 
 
 __.module  = v =>
-    __.isBlazeTemplateInstance(v) ? Sat.module[__.nameBlazeView(v.view)] :
-    __.isBlazeView(v)             ? Sat.module[__.nameBlazeView(v)] : '?' // what to do? v _?
+    __.isBlazeTemplateInstance(v) ? __._Modules[__.nameBlazeView(v.view)] :
+    __.isBlazeView(v)             ? __._Modules[__.nameBlazeView(v)] : '?' // what to do? v _?
 
 __.getLocal = v => v.slice(6)
 __.checkEventKey = (e, code) => code === (e.KeyCode || e.which)
