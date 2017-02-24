@@ -285,6 +285,7 @@ __.isCollection      = (c, t, f) => __.isIt(c,
     __._db[c]   &&
     'undefined' !== typeof Mongo            &&
     'undefined' !== typeof Mongo.Collection && __._db[c] instanceof Mongo.Collection, t, f)
+
 __.isCollectionReady = (c, t, f) => __.isIt(c,
     __.isCollection(c) &&
     __._db[c].handle   && __._db[c].handle.ready(), t, f)
@@ -293,8 +294,7 @@ __.allCollectionsReady  = (...c) => {
     return __.isIt(c, c.length === c.filter(cc => __.isCollectionReady(cc)).length, t, f) }
 __.whenCollectionsReady = (...c) => {
     let [m, fn] = c.slice(-2)
-    c.length ===
-    c.filter(cc => __.isCollection(cc)).filter(cc => __.isCollectionReady(cc, null, () => __._db[cc].subscribes.push(fn) )).length && fn(m) }
+    c.length === c.filter(v => __.isCollection(v)).filter(v => __.isCollectionReady(v, null, () => __._db[v].subscribes.push(fn) )).length && fn(m) }
 
 // remove?
 __.db = (collection, data, fn) => // wrong way
@@ -316,26 +316,7 @@ __.module  = v =>
 __.getLocal = v => v.slice(6)
 __.checkEventKey = (e, code) => code === (e.KeyCode || e.which)
 
-const checkTable = {
-   alpha:      (v) => /^[a-zA-Z]+$/.test(v),
-   lower:      (v) => /^[a-z]+$/.test(v),
-   upper:      (v) => /^[A-Z]+$/.test(v),
-   name:       (v) => /^[a-zA-Z0-9._-]+$/.test(v),
-   email:      (v) => /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i.test(v),
-   attribute:  (v) => /^[a-zA-Z]+$/.test(v),
-   id:         (v) => /^[a-z]+[0-9]+$/.test(v) && ! /^h[1-6]$/.test(v),
-   class:      (v) => /^_[a-z]+[a-zA-Z0-9$]*$/.test(v),
-   'id&class': (v) => /^[a-zA-Z0-9_$]+$/.test(v) && /_/.test(v),
-   digit:      (v) => /^[0-9]+$/.test(v),
-   local:      (v) => /^local_/.test(v)
-}
 
-__.check = (...args) => {
-  let i = 0
-  while (i < args.length - 1)
-    if (checkTable[args[i++]](args.slice(-1)[0]))
-      return args[i - 1]
-  return false }
 
 // string functions
 __.capitalize = s => __.isString(s) && s[0].toUpperCase() + s.slice(1)
@@ -447,11 +428,13 @@ __.array = function(a, v) {
 };
 
 
-__.__function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args! don't need it.
+// __.__function = (o, ...a) => __.isFunction(o) ? o : a => o  // a is an array of args! don't need it.
+
 __.object = (o, k, v) => { // if . is in the middle of key?
     if (__.isString(k) && k.includes('.') && k.indexOf('.') && k[k.length -1] !== '.') {
         let re = k.match(/^([^.]+)\.(.*$)/)
-        let [key, key_rest] = [re[1], re[2]]
+        let key      = re[1]
+        let key_rest = re[2]
         o[key] = o[key] || {}
         __.object(o[key], key_rest, v)
         return o
@@ -558,9 +541,9 @@ __.__position = function(obj) {
   }, 200);
 };
 
-
+// __.isMeteorClient( () => require('./client.js') )
+__.isMeteorServer( null, () => require('./es6.js') )
+require('./extra.js')
 
 if ('undefined' === typeof Meteor)  {
-    require('./extra.js')
-    __.isMeteorServer(null, require('./es6.js'))
     module.exports = __  }

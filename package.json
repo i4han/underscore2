@@ -1,10 +1,13 @@
 {
     "name": "underscore2",
-    "version": "0.5.66",
+    "version": "0.5.67",
     "os" : [ "!win32" ],
     "description": "Underscore2: Underscore-like library that provide a set of useful functions for Meteor.",
     "main": "src/__.js",
-    "files": [ "src/__.js" ],
+    "files": [ "src/__.js"
+	     , "src/es6.js"
+	     , "src/extra.js"
+         , "src/client.js" ],
     "author": "Isaac Han <isaac@hi16.ca>",
     "repository": {
         "type": "git",
