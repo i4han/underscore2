@@ -13,6 +13,7 @@ __.isUndefined  = (v, t, f) => __.isIt(v, 'undefined' === typeof v, t, f)
 __.isString     = (v, t, f) => __.isIt(v, 'string'    === typeof v, t, f)
 __.isNumber     = (v, t, f) => __.isIt(v, ! isNaN(v) && 'number' === typeof v, t, f)
 __.isBoolean    = (v, t, f) => __.isIt(v, 'boolean'   === typeof v, t, f)
+__.isDate       = (v, t, f) => __.isIt(v, v instanceof Date, t, f)
 __.isNaN        = (v, t, f) => __.isIt(v, isNaN(v) && 'number'   === typeof v, t, f)
 __.isScalar     = (v, t, f) => __.isIt(v, __.isNumber(v) || __.isString(v) || __.isBoolean(v), t, f)
 __.__isNull     = v => o === null // Do you need this? No
