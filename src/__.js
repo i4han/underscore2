@@ -367,16 +367,13 @@ function copy(obj) {
   return copy;
 } */
 __.assign = function(obj) {
-  var args;
+  var args
   (args = [].slice.call(arguments)).length > 1 && args.slice(1).forEach(function(o) {
-    var k, _results;
-    _results = [];
-    for (k in o) {
-      _results.push(obj[k] = o[k]);
-    }
-    return _results;
-  });
-  return obj }
+    var k
+    for (k in o)
+        if (__.isObject(obj[k])) __.assign(obj[k], o[k])
+        else obj[k] = o[k]  })
+  return obj  }
 
 __.uniqueProperties = (obj, properties) =>  // find unique properties that doesn't have in obj key: value.
     __.reduceKeys(properties, {}, (o, k) => // it is like a = a || []
